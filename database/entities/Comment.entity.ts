@@ -9,7 +9,7 @@ export class CommentEntity {
     id: number
     @Column({nullable: false, type: 'text'})
     text: string
-    @Column({nullable: false, type: 'bigint'})
+    @Column({nullable: false, type: 'bigint',default:0})
     likes: number
     @ManyToOne(() => PostEntity, PostEntity => PostEntity, {
         onDelete: 'CASCADE'

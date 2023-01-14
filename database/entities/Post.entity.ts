@@ -9,7 +9,7 @@ export class PostEntity {
     id: number
     @Column({nullable: false, type: 'text'})
     text: string
-    @Column({nullable: false, type: 'bigint'})
+    @Column({nullable: false, type: 'bigint',default: 0})
     likes: number
     @OneToMany(() => CommentEntity, CommentEntity => CommentEntity)
     comments: CommentEntity[]

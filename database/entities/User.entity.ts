@@ -8,7 +8,7 @@ import {AppreciatedPostEntity} from "./AppreciatedPost.entity";
 export class UserEntity {
     @PrimaryGeneratedColumn()
     id: number
-    @Column({nullable: false})
+    @Column({nullable: false,unique: true})
     login: string
     @Column({nullable: false})
     password: string
