@@ -31,5 +31,23 @@ export class UsersService {
             token
         }
     }
+    public async login(data: RequestAuth): Promise<UserAuth> {
+        const findUser: UserEntity = await this.UserRepository.findOneBy({login: data.login})
+        if (!findUser) throw new Error('the user not exist')
+        const isPassword: boolean = await bcrypt.compare(data.password,findUser.password)
+        if(!isPassword) throw new Error('the user not exist')
+        const payload: PayloadToken = {
+            id: findUser.id,
+            login: findUser.login
+        }
+        const token: string = this.AuthService.auth(payload)
+        return {
+            user: findUser,
+            token
+        }
+    }
+    public async remove(id: number){
+          await this.UserRepository.delete({id})
+    }
 
 }
