@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { connectionDB } from "../database/tyoeorm.config";
 import { AuthModule } from './modules/auth/auth.module';
-import { AuthController } from './modules/auth/auth.controller';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -16,8 +16,9 @@ import { AuthController } from './modules/auth/auth.controller';
       autoLoadEntities: true
     }),
     AuthModule,
+    UsersModule,
   ],
-  controllers: [AuthController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}
