@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "../../../database/entities/User.entity";
-import {InsertResult, Repository} from "typeorm";
+import {Repository} from "typeorm";
 import {AuthService} from "../auth/services/auth.service";
 import {PayloadToken, RequestAuth, UserAuth} from "../../types/auth";
 import * as bcrypt from 'bcryptjs'
