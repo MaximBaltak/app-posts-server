@@ -20,7 +20,11 @@ export class UsersService {
         newUser.login = data.login
         newUser.password = hashPassword
         await this.UserRepository.save(newUser)
-        const user: UserEntity = await this.UserRepository.findOneBy({login:data.login})
+        const user: UserEntity = await this.UserRepository.createQueryBuilder("user")
+            .where("user.login = :login",{login:data.login})
+            .leftJoinAndSelect("user.appreciatedComments","appreciatedComments")
+            .leftJoinAndSelect("user.appreciatedPosts","appreciatedPosts")
+            .getOne()
         const payload: PayloadToken = {
             id: user.id,
             login: user.login
@@ -32,7 +36,11 @@ export class UsersService {
         }
     }
     public async login(data: RequestAuth): Promise<UserAuth> {
-        const findUser: UserEntity = await this.UserRepository.findOneBy({login: data.login})
+        const findUser: UserEntity = await this.UserRepository.createQueryBuilder("user")
+            .where("user.login = :login",{login:data.login})
+            .leftJoinAndSelect("user.appreciatedComments","appreciatedComments")
+            .leftJoinAndSelect("user.appreciatedPosts","appreciatedPosts")
+            .getOne()
         if (!findUser) throw new Error('the user not exist')
         const isPassword: boolean = await bcrypt.compare(data.password,findUser.password)
         if(!isPassword) throw new Error('the user not exist')

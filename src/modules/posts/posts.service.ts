@@ -33,6 +33,7 @@ export class PostsService {
         if (!post) throw new Error('the post not exist')
         const AppreciatedPost: AppreciatedPostEntity = await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
             .where("appreciated.user_id=:id", {id: userId})
+            .where("appreciated.post_id=:id", {id: postId})
             .getOne()
         console.log(AppreciatedPost)
         if (AppreciatedPost) {

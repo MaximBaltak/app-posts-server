@@ -16,10 +16,10 @@ export class UserEntity {
     createdPosts: PostEntity[]
     @OneToMany(() => CommentEntity, CommentEntity => CommentEntity)
     createdComments: CommentEntity[]
-    @OneToMany(() => AppreciatedCommentEntity, AppreciatedCommentEntity => AppreciatedCommentEntity.comment)
-    appreciatedComments: CommentEntity[]
-    @OneToMany(() => AppreciatedPostEntity, AppreciatedPostEntity => AppreciatedPostEntity.post)
-    appreciatedPosts: PostEntity[]
+    @OneToMany(() => AppreciatedCommentEntity, AppreciatedCommentEntity => AppreciatedCommentEntity.user)
+    appreciatedComments: AppreciatedCommentEntity[]
+    @OneToMany(() => AppreciatedPostEntity, AppreciatedPostEntity => AppreciatedPostEntity.user)
+    appreciatedPosts: AppreciatedPostEntity[]
     @CreateDateColumn({name: 'create_at'})
     createAt: Date
 }
