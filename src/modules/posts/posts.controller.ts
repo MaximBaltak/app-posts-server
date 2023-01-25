@@ -4,6 +4,7 @@ import {PostEntity} from "../../../database/entities/Post.entity";
 import {RequestCreatePost, ResponseString} from "../../types/posts";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {UserId} from "../../decorators/user/userId.decorator";
+import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
 
 @Controller('posts')
 export class PostsController {
@@ -37,6 +38,15 @@ export class PostsController {
         try {
             await this.PostsService.update(userId, postId)
             return {message: 'the post updated'}
+        } catch (e) {
+            return new HttpException(e, HttpStatus.BAD_REQUEST)
+        }
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('appreciated')
+    async getAppreciatedPosts(@UserId() userId: number): Promise<AppreciatedPostEntity[]| HttpException> {
+        try {
+            return await this.PostsService.getAppreciatedPosts(userId)
         } catch (e) {
             return new HttpException(e, HttpStatus.BAD_REQUEST)
         }

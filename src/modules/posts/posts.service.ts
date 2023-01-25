@@ -4,6 +4,7 @@ import {UserEntity} from "../../../database/entities/User.entity";
 import {Repository} from "typeorm";
 import {PostEntity} from "../../../database/entities/Post.entity";
 import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
+import {AppreciatedCommentEntity} from "../../../database/entities/AppreciatedСomment.entity";
 
 @Injectable()
 export class PostsService {
@@ -54,6 +55,12 @@ export class PostsService {
         return await this.PostRepository.createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .leftJoinAndSelect('post.comments', 'comments')
+            .getMany()
+    }
+    public async getAppreciatedPosts(userId: number): Promise<AppreciatedPostEntity[]>{
+        return await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
+            .where("appreciated.user_id=:id",{id: userId})
+            .leftJoinAndSelect("appreciated.post","post")
             .getMany()
     }
 }

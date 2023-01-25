@@ -1,18 +1,19 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
 import {CommentsService} from "./comments.service";
 import {ResponseString} from "../../types/posts";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {UserId} from "../../decorators/user/userId.decorator";
 import {CommentEntity} from "../../../database/entities/Comment.entity";
 import {RequestCreateComment} from "../../types/comments";
+import {AppreciatedCommentEntity} from "../../../database/entities/AppreciatedСomment.entity";
 
 @Controller('comments')
 export class CommentsController {
     constructor(private CommentsService: CommentsService) {
     }
 
-    @Get(':postId')
-    async getPostsId(@Param('postId') postId: number): Promise<CommentEntity[] | HttpException> {
+    @Get()
+    async getPostsId(@Query('postId') postId: number): Promise<CommentEntity[] | HttpException> {
         try {
             return await this.CommentsService.getPostsId(postId)
         } catch (e) {
@@ -39,6 +40,15 @@ export class CommentsController {
         try {
             await this.CommentsService.update(userId, commentId)
             return {message: 'the comment updated'}
+        } catch (e) {
+            return new HttpException(e, HttpStatus.BAD_REQUEST)
+        }
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('appreciated')
+    async getAppreciatedComments(@UserId() userId: number): Promise<AppreciatedCommentEntity[]| HttpException> {
+        try {
+            return await this.CommentsService.getAppreciatedComments(userId)
         } catch (e) {
             return new HttpException(e, HttpStatus.BAD_REQUEST)
         }

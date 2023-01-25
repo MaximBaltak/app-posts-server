@@ -3,7 +3,6 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "../../../database/entities/User.entity";
 import {Repository} from "typeorm";
 import {PostEntity} from "../../../database/entities/Post.entity";
-import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
 import {AppreciatedCommentEntity} from "../../../database/entities/AppreciatedСomment.entity";
 import {CommentEntity} from "../../../database/entities/Comment.entity";
 
@@ -61,6 +60,12 @@ export class CommentsService {
             .leftJoinAndSelect('comment.user', 'user')
             .leftJoinAndSelect('comment.post', 'post')
             .where("comment.post_id = :id", {id: postId})
+            .getMany()
+    }
+    public async getAppreciatedComments(userId: number): Promise<AppreciatedCommentEntity[]>{
+        return await this.AppreciatedCommentRepository.createQueryBuilder('appreciated')
+            .where("appreciated.user_id=:id",{id: userId})
+            .leftJoinAndSelect("appreciated.comment","comment")
             .getMany()
     }
 }
