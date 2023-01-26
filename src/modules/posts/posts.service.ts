@@ -4,7 +4,6 @@ import {UserEntity} from "../../../database/entities/User.entity";
 import {Repository} from "typeorm";
 import {PostEntity} from "../../../database/entities/Post.entity";
 import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
-import {AppreciatedCommentEntity} from "../../../database/entities/AppreciatedСomment.entity";
 
 @Injectable()
 export class PostsService {
