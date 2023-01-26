@@ -6,6 +6,7 @@ import {AuthModule} from './modules/auth/auth.module';
 import {UsersModule} from './modules/users/users.module';
 import {PostsModule} from "./modules/posts/posts.module";
 import {CommentsModule} from "./modules/comments/comments.module";
+import { AppController } from './app.controller';
 
 @Module({
     imports: [
@@ -22,7 +23,7 @@ import {CommentsModule} from "./modules/comments/comments.module";
         PostsModule,
         CommentsModule
     ],
-    controllers: [],
+    controllers: [AppController],
     providers: [],
 })
 export class AppModule {
