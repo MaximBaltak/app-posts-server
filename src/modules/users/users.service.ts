@@ -81,6 +81,24 @@ export class UsersService {
         }
     }
 
+    public async getUser(id: number): Promise<UserEntity> {
+        const findUser: UserEntity = await this.UserRepository.createQueryBuilder("user")
+            .where("user.login = :login", {id})
+            .getOne()
+        if (!findUser) throw new Error('the user not exist')
+        const appreciatedPosts: AppreciatedPostEntity[] = await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
+            .where("appreciated.user_id=:id", {id})
+            .leftJoinAndSelect("appreciated.post", "post")
+            .getMany()
+        const appreciatedComments: AppreciatedCommentEntity[] = await this.AppreciatedCommentRepository.createQueryBuilder('appreciated')
+            .where("appreciated.user_id=:id", {id})
+            .leftJoinAndSelect("appreciated.comment", "comment")
+            .getMany()
+        findUser.appreciatedPosts = appreciatedPosts
+        findUser.appreciatedComments = appreciatedComments
+        return findUser
+    }
+
     public async remove(id: number) {
         await this.UserRepository.delete({id})
     }

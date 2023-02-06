@@ -13,6 +13,7 @@ import {
     ApiTags, ApiUnauthorizedResponse
 } from "@nestjs/swagger";
 import {UserEntity} from "../../../database/entities/User.entity";
+import {UserId} from "../../decorators/user/userId.decorator";
 
 @ApiTags('users')
 @Controller('users')
@@ -107,5 +108,19 @@ export class UsersController {
     public async exit(@Res() res: Response) {
         res.clearCookie('auth')
         res.json({message: 'the user exit'})
+    }
+    @ApiOkResponse({
+        type: UserEntity
+    })
+    @ApiBadRequestResponse({schema: {example: new HttpException('bad request', HttpStatus.BAD_REQUEST)}})
+    @ApiUnauthorizedResponse({schema: {example: new HttpException('unauthorized', HttpStatus.UNAUTHORIZED)}})
+    @UseGuards(JwtAuthGuard)
+    @Get('get')
+    public async getUser(@UserId() userId: number): Promise<UserEntity | HttpException> {
+        try {
+            return await this.UsersService.getUser(userId)
+        } catch (e) {
+            return new HttpException(e, HttpStatus.BAD_REQUEST)
+        }
     }
 }
