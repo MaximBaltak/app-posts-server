@@ -40,7 +40,7 @@ export class UsersController {
             res.cookie('auth', result.token, {maxAge: 1000 * 60 * 60 * 24})
             res.json(result.user)
         } catch (e) {
-            res.json(new HttpException(e, HttpStatus.BAD_REQUEST))
+            res.status(400).json(new HttpException(e, HttpStatus.BAD_REQUEST))
         }
     }
 
@@ -58,13 +58,13 @@ export class UsersController {
     @Post('login')
     public async login(@Res() res: Response, @Body() data: RequestAuth) {
         if (!data?.login || !data?.password)
-            res.json(new HttpException('bad request', HttpStatus.BAD_REQUEST))
+            res.status(400).json(new HttpException('bad request', HttpStatus.BAD_REQUEST))
         try {
             const result: UserAuth = await this.UsersService.login(data)
             res.cookie('auth', result.token, {maxAge: 1000 * 60 * 60 * 24})
             res.json(result.user)
         } catch (e) {
-            res.json(new HttpException(e, HttpStatus.BAD_REQUEST))
+            res.status(400).json(new HttpException(e, HttpStatus.BAD_REQUEST))
         }
     }
 
@@ -88,7 +88,7 @@ export class UsersController {
             res.clearCookie('auth')
             res.json({message: 'the user deleted'})
         } catch (e) {
-            res.json(new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR))
+            res.status(500).json(new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR))
         }
     }
 
