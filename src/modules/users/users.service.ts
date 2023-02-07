@@ -83,7 +83,7 @@ export class UsersService {
 
     public async getUser(id: number): Promise<UserEntity> {
         const findUser: UserEntity = await this.UserRepository.createQueryBuilder("user")
-            .where("user.login = :login", {id})
+            .where("user.id = :id", {id})
             .getOne()
         if (!findUser) throw new Error('the user not exist')
         const appreciatedPosts: AppreciatedPostEntity[] = await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
