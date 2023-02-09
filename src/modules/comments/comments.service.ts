@@ -37,10 +37,12 @@ export class CommentsService {
         if (!user) throw new Error('the user not exist')
         const comment: CommentEntity = await this.CommentRepository.findOneBy({id: commentId})
         if (!comment) throw new Error('the comment not exist')
-        const AppreciatedComment: AppreciatedCommentEntity = await this.AppreciatedCommentRepository.createQueryBuilder('appreciated')
-            .where("appreciated.user_id=:id", {id: userId})
-            .where("appreciated.comment_id=:id", {id: commentId})
-            .getOne()
+        const AppreciatedComment: AppreciatedCommentEntity = await this.AppreciatedCommentRepository.findOne({
+            where: {
+                user: { id: userId },
+                comment: { id: commentId },
+            }
+        })
         if (AppreciatedComment) {
             await this.AppreciatedCommentRepository.delete({id: AppreciatedComment.id})
             const likes: number = comment.likes ? comment.likes - 1 : 0

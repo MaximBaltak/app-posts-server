@@ -4,6 +4,7 @@ import {UserEntity} from "../../../database/entities/User.entity";
 import {Repository} from "typeorm";
 import {PostEntity} from "../../../database/entities/Post.entity";
 import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
+import {CommentsService} from "../comments/comments.service";
 
 @Injectable()
 export class PostsService {
@@ -14,6 +15,7 @@ export class PostsService {
         private PostRepository: Repository<PostEntity>,
         @InjectRepository(AppreciatedPostEntity)
         private AppreciatedPostRepository: Repository<AppreciatedPostEntity>,
+        private CommentService: CommentsService
     ) {
     }
 
@@ -31,11 +33,12 @@ export class PostsService {
         if (!user) throw new Error('the user not exist')
         const post: PostEntity = await this.PostRepository.findOneBy({id: postId})
         if (!post) throw new Error('the post not exist')
-        const AppreciatedPost: AppreciatedPostEntity = await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
-            .where("appreciated.user_id=:id", {id: userId})
-            .where("appreciated.post_id=:id", {id: postId})
-            .getOne()
-        console.log(AppreciatedPost)
+        const AppreciatedPost: AppreciatedPostEntity = await this.AppreciatedPostRepository.findOne({
+            where: {
+                user: { id: userId },
+                post: { id: postId },
+            }
+        })
         if (AppreciatedPost) {
             await this.AppreciatedPostRepository.delete({id: AppreciatedPost.id})
             const likes: number = post.likes ? post.likes - 1 : 0
@@ -51,10 +54,14 @@ export class PostsService {
     }
 
     public async getPosts(): Promise<PostEntity[]> {
-        return await this.PostRepository.createQueryBuilder('post')
+       const posts = await this.PostRepository.createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
-            .leftJoinAndSelect('post.comments', 'comments')
             .getMany()
+        for (let i = 0; i < posts.length; i++) {
+            const comments = await this.CommentService.getPostsId(posts[i].id)
+            posts[i].comments = [...comments]
+        }
+        return posts
     }
     public async getAppreciatedPosts(userId: number): Promise<AppreciatedPostEntity[]>{
         return await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
