@@ -35,9 +35,9 @@ export class PostsService {
         if (!post) throw new Error('the post not exist')
         const AppreciatedPost: AppreciatedPostEntity = await this.AppreciatedPostRepository.findOne({
             where: {
-                user: { id: userId },
-                post: { id: postId },
-            }
+                user: {id: userId},
+                post: {id: postId},
+            },
         })
         if (AppreciatedPost) {
             await this.AppreciatedPostRepository.delete({id: AppreciatedPost.id})
@@ -54,8 +54,9 @@ export class PostsService {
     }
 
     public async getPosts(): Promise<PostEntity[]> {
-       const posts = await this.PostRepository.createQueryBuilder('post')
+        const posts = await this.PostRepository.createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
+            .orderBy('post.create_at', 'DESC')
             .getMany()
         for (let i = 0; i < posts.length; i++) {
             const comments = await this.CommentService.getPostsId(posts[i].id)
@@ -63,10 +64,11 @@ export class PostsService {
         }
         return posts
     }
-    public async getAppreciatedPosts(userId: number): Promise<AppreciatedPostEntity[]>{
+
+    public async getAppreciatedPosts(userId: number): Promise<AppreciatedPostEntity[]> {
         return await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
-            .where("appreciated.user_id=:id",{id: userId})
-            .leftJoinAndSelect("appreciated.post","post")
+            .where("appreciated.user_id=:id", {id: userId})
+            .leftJoinAndSelect("appreciated.post", "post")
             .getMany()
     }
 }

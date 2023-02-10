@@ -39,8 +39,8 @@ export class CommentsService {
         if (!comment) throw new Error('the comment not exist')
         const AppreciatedComment: AppreciatedCommentEntity = await this.AppreciatedCommentRepository.findOne({
             where: {
-                user: { id: userId },
-                comment: { id: commentId },
+                user: {id: userId},
+                comment: {id: commentId},
             }
         })
         if (AppreciatedComment) {
@@ -61,13 +61,15 @@ export class CommentsService {
         return await this.CommentRepository.createQueryBuilder('comment')
             .leftJoinAndSelect('comment.user', 'user')
             .leftJoinAndSelect('comment.post', 'post')
+            .orderBy('comment.create_at', 'DESC')
             .where("comment.post_id = :id", {id: postId})
             .getMany()
     }
-    public async getAppreciatedComments(userId: number): Promise<AppreciatedCommentEntity[]>{
+
+    public async getAppreciatedComments(userId: number): Promise<AppreciatedCommentEntity[]> {
         return await this.AppreciatedCommentRepository.createQueryBuilder('appreciated')
-            .where("appreciated.user_id=:id",{id: userId})
-            .leftJoinAndSelect("appreciated.comment","comment")
+            .where("appreciated.user_id=:id", {id: userId})
+            .leftJoinAndSelect("appreciated.comment", "comment")
             .getMany()
     }
 }
