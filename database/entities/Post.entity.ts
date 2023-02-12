@@ -15,6 +15,9 @@ export class PostEntity {
     @ApiProperty({required: true, nullable: false, description:'колличество лайков'})
     @Column({nullable: false,default: 0})
     likes: number
+    @ApiProperty({required: true, nullable: false, default: false, description:'оценил ли пользователь пост'})
+    @Column({nullable: false, default: false})
+    isLike: boolean
     @ApiProperty({required: true, nullable: true, type: () => [CommentEntity], description:'комментарии данного поста'})
     @OneToMany(() => CommentEntity, CommentEntity => CommentEntity.post)
     comments: CommentEntity[]

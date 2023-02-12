@@ -4,6 +4,8 @@ import {UserEntity} from "../../../database/entities/User.entity";
 import {Repository} from "typeorm";
 import {PostEntity} from "../../../database/entities/Post.entity";
 import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
+import {CommentsService} from "../comments/comments.service";
+import {AppreciatedCommentEntity} from "../../../database/entities/AppreciatedСomment.entity";
 
 @Injectable()
 export class PostsService {
@@ -14,6 +16,7 @@ export class PostsService {
         private PostRepository: Repository<PostEntity>,
         @InjectRepository(AppreciatedPostEntity)
         private AppreciatedPostRepository: Repository<AppreciatedPostEntity>,
+        private CommentService: CommentsService
     ) {
     }
 
@@ -31,11 +34,12 @@ export class PostsService {
         if (!user) throw new Error('the user not exist')
         const post: PostEntity = await this.PostRepository.findOneBy({id: postId})
         if (!post) throw new Error('the post not exist')
-        const AppreciatedPost: AppreciatedPostEntity = await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
-            .where("appreciated.user_id=:id", {id: userId})
-            .where("appreciated.post_id=:id", {id: postId})
-            .getOne()
-        console.log(AppreciatedPost)
+        const AppreciatedPost: AppreciatedPostEntity = await this.AppreciatedPostRepository.findOne({
+            where: {
+                user: {id: userId},
+                post: {id: postId},
+            },
+        })
         if (AppreciatedPost) {
             await this.AppreciatedPostRepository.delete({id: AppreciatedPost.id})
             const likes: number = post.likes ? post.likes - 1 : 0
@@ -50,16 +54,36 @@ export class PostsService {
         }
     }
 
-    public async getPosts(): Promise<PostEntity[]> {
-        return await this.PostRepository.createQueryBuilder('post')
+    public async getPosts(userId?: number): Promise<PostEntity[]> {
+        const posts = await this.PostRepository.createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
-            .leftJoinAndSelect('post.comments', 'comments')
+            .orderBy('post.create_at', 'DESC')
             .getMany()
+        for (let i = 0; i < posts.length; i++) {
+            const comments = await this.CommentService.getPostsId(posts[i].id)
+            posts[i].comments = [...comments]
+        }
+        if(userId) {
+            const appreciatedPosts: AppreciatedPostEntity[] = await this.getAppreciatedPosts(userId)
+            const appreciatedComment: AppreciatedCommentEntity[] = await this.CommentService.getAppreciatedComments(userId)
+            posts.forEach(post => {
+                appreciatedPosts.forEach(postA => {
+                    if(postA.post.id === post.id) post.isLike = true
+                })
+                post.comments.forEach(comment => {
+                    appreciatedComment.forEach(commentA => {
+                        if(comment.id === commentA.comment.id) comment.isLike = true
+                    })
+                })
+            })
+        }
+        return posts
     }
-    public async getAppreciatedPosts(userId: number): Promise<AppreciatedPostEntity[]>{
+
+    public async getAppreciatedPosts(userId: number): Promise<AppreciatedPostEntity[]> {
         return await this.AppreciatedPostRepository.createQueryBuilder('appreciated')
-            .where("appreciated.user_id=:id",{id: userId})
-            .leftJoinAndSelect("appreciated.post","post")
+            .where("appreciated.user_id=:id", {id: userId})
+            .leftJoinAndSelect("appreciated.post", "post")
             .getMany()
     }
 }

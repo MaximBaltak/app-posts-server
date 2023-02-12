@@ -1,5 +1,3 @@
-
-
 export interface RequestCreatePost {
     text: string
 }

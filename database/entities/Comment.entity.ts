@@ -15,6 +15,9 @@ export class CommentEntity {
     @ApiProperty({required: true, nullable: false, description:'колличество лайков'})
     @Column({nullable: false,default:0})
     likes: number
+    @ApiProperty({required: true, nullable: false, default: false, description:'оценил ли пользователь комментарий'})
+    @Column({nullable: false, default: false})
+    isLike: boolean
     @ApiProperty({required: true, nullable: false, type: () => PostEntity, description:'пост под которым оставлен комментарий'})
     @ManyToOne(() => PostEntity, PostEntity => PostEntity, {
         onDelete: 'CASCADE'

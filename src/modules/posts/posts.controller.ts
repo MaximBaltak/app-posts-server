@@ -1,4 +1,4 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
 import {PostsService} from "./posts.service";
 import {PostEntity} from "../../../database/entities/Post.entity";
 import {RequestCreatePost, ResponseString} from "../../types/posts";
@@ -10,7 +10,7 @@ import {
     ApiBody,
     ApiCookieAuth, ApiInternalServerErrorResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse
 } from "@nestjs/swagger";
@@ -20,15 +20,16 @@ import {
 export class PostsController {
     constructor(private PostsService: PostsService) {
     }
-
+    @ApiQuery({ name: 'userId',required: false})
     @ApiInternalServerErrorResponse({schema: {example: new HttpException('server error', HttpStatus.INTERNAL_SERVER_ERROR)}})
     @ApiUnauthorizedResponse({schema: {example: new HttpException('unauthorized', HttpStatus.UNAUTHORIZED)}})
     @ApiOkResponse({type: [PostEntity]})
     @ApiOperation({description: 'получение всех постов'})
     @Get()
-    async getPosts(): Promise<PostEntity[] | HttpException> {
+    async getPosts(@Query('userId') userId?: number): Promise<PostEntity[] | HttpException> {
         try {
-            return await this.PostsService.getPosts()
+            if(userId) return await this.PostsService.getPosts(userId)
+            if(!userId) return await this.PostsService.getPosts()
         } catch (e) {
             return new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)
         }
