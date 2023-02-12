@@ -5,6 +5,7 @@ import {Repository} from "typeorm";
 import {PostEntity} from "../../../database/entities/Post.entity";
 import {AppreciatedPostEntity} from "../../../database/entities/AppreciatedPost.entity";
 import {CommentsService} from "../comments/comments.service";
+import {AppreciatedCommentEntity} from "../../../database/entities/AppreciatedСomment.entity";
 
 @Injectable()
 export class PostsService {
@@ -53,7 +54,7 @@ export class PostsService {
         }
     }
 
-    public async getPosts(): Promise<PostEntity[]> {
+    public async getPosts(userId?: number): Promise<PostEntity[]> {
         const posts = await this.PostRepository.createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .orderBy('post.create_at', 'DESC')
@@ -61,6 +62,20 @@ export class PostsService {
         for (let i = 0; i < posts.length; i++) {
             const comments = await this.CommentService.getPostsId(posts[i].id)
             posts[i].comments = [...comments]
+        }
+        if(userId) {
+            const appreciatedPosts: AppreciatedPostEntity[] = await this.getAppreciatedPosts(userId)
+            const appreciatedComment: AppreciatedCommentEntity[] = await this.CommentService.getAppreciatedComments(userId)
+            posts.forEach(post => {
+                appreciatedPosts.forEach(postA => {
+                    if(postA.post.id === post.id) post.isLike = true
+                })
+                post.comments.forEach(comment => {
+                    appreciatedComment.forEach(commentA => {
+                        if(comment.id === commentA.comment.id) comment.isLike = true
+                    })
+                })
+            })
         }
         return posts
     }
