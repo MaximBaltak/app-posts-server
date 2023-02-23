@@ -8,8 +8,8 @@ export class migrationChangeCommentPost1674246553653 implements MigrationInterfa
         await queryRunner.query(`ALTER TABLE "comments" ADD "likes" integer NOT NULL DEFAULT '0'`);
         await queryRunner.query(`ALTER TABLE "posts" DROP COLUMN "likes"`);
         await queryRunner.query(`ALTER TABLE "posts" ADD "likes" integer NOT NULL DEFAULT '0'`);
-        await queryRunner.query(`ALTER TABLE "posts" ADD "isLike" bollean NOT NULL DEFAULT false`);
-        await queryRunner.query(`ALTER TABLE "comments" ADD "isLike" bollean NOT NULL DEFAULT false`);
+        await queryRunner.query(`ALTER TABLE "posts" ADD "isLike" boolean NOT NULL DEFAULT false`);
+        await queryRunner.query(`ALTER TABLE "comments" ADD "isLike" boolean NOT NULL DEFAULT false`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
